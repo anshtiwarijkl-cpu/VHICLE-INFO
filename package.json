@@ -1,0 +1,27 @@
+{
+  "name": "dark-vehicle-api",
+  "version": "3.0.0",
+  "description": "Vehicle Information API with Admin Panel - Made by ANSH AFT",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "vehicle-api",
+    "rc-checker",
+    "dark-api",
+    "anshaft"
+  ],
+  "author": "ANSH AFT",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
