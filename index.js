@@ -174,7 +174,7 @@ function validateApiKey(req, res, next) {
       username: username,
       apiKey: apiKey.substring(0, 8) + '...',
       timestamp: new Date().toISOString(),
-      ip: req.query.ip || 'self',
+      ip: req.ip || 'self',
       plan: user.plan
     });
   }
@@ -196,7 +196,7 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
       return res.status(400).json({
         success: false,
         status: 400,
-        message: 'RC number parameter is required. Please provide correct RC number',
+        message: 'RC number parameter is required. Please provide correct RC number (e.g., DL10AB1234)',
         MADE_BY: 'ANSH AFT',
         CHANNEL: 'https://t.me/premium_dark_33',
         USERNAME: '@KINGFFAIAK47x',
@@ -209,7 +209,7 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
       });
     }
 
-    // Validate RC number format (DL10AB1234 format)
+    // Validate RC number format
     const rcRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/;
     if (!rcRegex.test(rc.toUpperCase())) {
       return res.status(400).json({
@@ -228,29 +228,35 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
       });
     }
 
-    // Call the vehicle info API
+    // ========== CALL EXTERNAL API ==========
     const response = await fetch('https://vehicleinfobyterabaap.vercel.app/lookup?rc=' + encodeURIComponent(rc.toUpperCase()));
-    const data = await response.json();
+    const externalData = await response.json();
     
-    // Add metadata to the response
-    data.MADE_BY = 'ANSH AFT';
-    data.CHANNEL = 'https://t.me/premium_dark_33';
-    data.USERNAME = '@KINGFFAIAK47x';
-    data.API_VERSION = CONFIG.version;
-    data.REQUEST_BY = req.user.username;
-    data.PLAN = req.user.plan;
-    data.REMAINING_MINUTE = CONFIG.rateLimit[req.user.plan].perMinute - req.user.minuteRequests;
-    data.REMAINING_DAY = CONFIG.rateLimit[req.user.plan].perDay - req.user.dayRequests;
-    data.RESET_TIME = new Date(req.user.lastDayReset + 86400000).toISOString();
+    // ========== REMOVE COPYRIGHT AND TAKE ALL DATA ==========
+    const { copyright, ...cleanData } = externalData;
     
-    res.json(data);
+    // ========== ADD OUR METADATA ==========
+    cleanData.MADE_BY = 'ANSH AFT';
+    cleanData.CHANNEL = 'https://t.me/premium_dark_33';
+    cleanData.USERNAME = '@KINGFFAIAK47x';
+    cleanData.API_VERSION = CONFIG.version;
+    cleanData.REQUEST_BY = req.user.username;
+    cleanData.PLAN = req.user.plan;
+    cleanData.REMAINING_MINUTE = CONFIG.rateLimit[req.user.plan].perMinute - req.user.minuteRequests;
+    cleanData.REMAINING_DAY = CONFIG.rateLimit[req.user.plan].perDay - req.user.dayRequests;
+    cleanData.RESET_TIME = new Date(req.user.lastDayReset + 86400000).toISOString();
+    
+    res.json(cleanData);
+    
   } catch (error) {
     res.status(500).json({
       success: false,
       status: 500,
       error: 'Internal Server Error',
       message: error.message,
-      support: 'https://t.me/premium_dark_33'
+      support: 'https://t.me/premium_dark_33',
+      MADE_BY: 'ANSH AFT',
+      CHANNEL: 'https://t.me/premium_dark_33'
     });
   }
 });
@@ -264,7 +270,9 @@ app.get('/api/status', (req, res) => {
     total_requests: systemStats.totalRequests,
     total_users: Object.keys(users).length,
     maintenance: CONFIG.maintenance,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    MADE_BY: 'ANSH AFT',
+    CHANNEL: 'https://t.me/premium_dark_33'
   });
 });
 
@@ -290,7 +298,7 @@ function getLoginPageHTML(error = '') {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🔥 DARK LOGIN</title>
+  <title>🔥 DARK VEHICLE API - LOGIN</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -398,7 +406,7 @@ function getLoginPageHTML(error = '') {
 </head>
 <body>
   <div class="login-container">
-    <h1 class="glow">🔥 DARK</h1>
+    <h1 class="glow">🚗 VEHICLE API</h1>
     <p class="subtitle">ADMIN CONTROL PANEL</p>
     
     ${error ? '<div class="error">' + error + '</div>' : ''}
@@ -417,6 +425,7 @@ function getLoginPageHTML(error = '') {
     
     <div class="api-info">
       <p>📌 Vehicle Info API | Made by ANSH AFT</p>
+      <p>🔗 https://anshsir-info.vercel.app</p>
     </div>
     
     <div class="footer">
@@ -438,7 +447,7 @@ function getAdminPanelHTML() {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🔥 DARK CONTROL PANEL</title>
+  <title>🔥 DARK VEHICLE CONTROL PANEL</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -566,7 +575,7 @@ function getAdminPanelHTML() {
 <body>
 <div class="container">
   <div class="header">
-    <div><h1 class="glow">🔥 DARK CONTROL</h1><p style="font-size:0.6em; opacity:0.5;">MADE BY ANSH AFT | v3.0</p></div>
+    <div><h1 class="glow">🚗 VEHICLE CONTROL</h1><p style="font-size:0.6em; opacity:0.5;">MADE BY ANSH AFT | v3.0</p></div>
     <div class="flex-row">
       <span id="apiStatusText" style="font-size:0.7em;">● ONLINE</span>
       <span id="maintenanceText" style="font-size:0.7em;"></span>
@@ -1129,7 +1138,7 @@ app.post('/admin/reset-config', (req, res) => {
 app.get('/admin/export-logs', (req, res) => {
   const data = JSON.stringify({ users, logs: usageLogs, stats: systemStats, config: CONFIG, failedLogins, announcements }, null, 2);
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Content-Disposition', 'attachment; filename=dark_panel_backup.json');
+  res.setHeader('Content-Disposition', 'attachment; filename=dark_vehicle_api_backup.json');
   res.send(data);
 });
 
@@ -1170,15 +1179,16 @@ app.use((req, res) => {
       'Admin Panel': '/',
       'Login': '/token'
     },
-    made_by: 'ANSH AFT',
-    channel: 'https://t.me/premium_dark_33'
+    MADE_BY: 'ANSH AFT',
+    CHANNEL: 'https://t.me/premium_dark_33',
+    USERNAME: '@KINGFFAIAK47x'
   });
 });
 
 // ========== START SERVER ==========
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log('✅ Server running on port ' + PORT);
+  console.log('✅ Vehicle API Server running on port ' + PORT);
   console.log('📌 Login Page: http://localhost:' + PORT + '/');
   console.log('📌 API Status: http://localhost:' + PORT + '/api/status');
   console.log('📌 API Endpoint: http://localhost:' + PORT + '/api/vehicle-info?rc=DL10AB1234&api_key=DEMOFUCK');
@@ -1187,6 +1197,8 @@ app.listen(PORT, () => {
   console.log('   Username: ANSHAFT127987');
   console.log('   Password: ANSHAFTAK47');
   console.log('   API Key: DEMOFUCK (for testing)');
+  console.log('');
+  console.log('🚀 Deployed URL: https://anshsir-info.vercel.app');
 });
 
 module.exports = app;
