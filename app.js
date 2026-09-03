@@ -1,35 +1,28 @@
 const express = require('express');
 const app = express();
 
-// ========== FIREBASE SETUP WITH ENV VARIABLES ==========
+// ========== FIREBASE SETUP ==========
 const admin = require('firebase-admin');
 
-// Firebase config ko environment variables se load karein (Vercel ke liye)
-const firebaseConfig = {
-  type: process.env.FIREBASE_TYPE || "service_account",
-  project_id: process.env.FIREBASE_PROJECT_ID || "ansh-aft",
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID || "54a495a8815a68f488b2e97a627b3768561f9730",
-  private_key: (process.env.FIREBASE_PRIVATE_KEY || "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDAdBVfG2zWAgnP\n0LK4OCxjHWGA7Elcojb4//8/KMuuvUUZDZ1xxn6Wm1T1+ILWMvvbVZs4iCPsK9+e\n7mhIsNGWD3EtbIRPXCkpnBRJ7KZ8dm0kIgI1L7WG8NQYY9/hBUJkw9ZptWpg2TaN\nAVWjbfWpqx+O4nieeKd3kzyTl1C5zNaZvde2lVCcHavQvfyfkTDsW5I9XIsnUZsu\n3A+jQFNSFqwfbufxCTSvjI09hYV/GGp8BP7eoLgcx+IXPRJAGfx3jab2wtPMERWs\nLDDcWdXbH9BiZHvG7UiyBSVPopx73zUZ5bO3gzbuWIHeP3s71X9Fo5g/CYvbxfEY\nyNcA7EktAgMBAAECgf9OLtp/yKRuTGWwBxiTvj5KBaWWumcTOtMaVOVcwzX7xuhL\nRTyw+/JxPKlHQ63jVtL6R8zHKodtamVuK2wyG6MJUzynN26Izufp/34+ieUYqwOr\nqiU7diZIq41+WxSYVYqjZOu2Bf0xWwzOO7yOqB0k0GABq/9UYa+m5Cm3y8D/uYLF\nYE38hs40kupIxCDV32AYRg37xKO/qlXyYTn+2aNVtSYbxkq0zwAnwnsyYlBe4J8X\nazlhAWNO6d2G9y7JSEaKooOVPNeqw2NZPtwK+ebu1LRQIP8iaCr+CSuFdZ3srdaA\nIW/1EJf5aXgKKsdYWoonQeqxTyNLDyZx+FD/TgECgYEA7ASDHZUXzamix9vmG1Gk\nR/MOc4ZPu8IyVrgCqs0lJfKiMr/sOPnpvrULH+q08ixiH4waxLqqCE+VmSUPpVhu\n1Th3/lC4G+7gmomdi/HLbBuJRVchEtjsc/d88O6wFPCXEWTxByZSzGwf2HTY65Vq\nhZa5+/9eObeRJsHbFWB7nh0CgYEA0L9aingPQSU9Dibbyat2PL8WmSi3lYHo5+Fl\nRl/DdsOG+dNkKNvMfXO2A5WboDwWT+/Q1bcXQrjDFqFc6JfBJ64TD39Ev3uyzo1O\nIb6nKfjcW+usfm94s770HNp5kugXfld+rFnMmS6D4OpL7mOhaap9IUtrvPdp2lQr\n4bUQqlECgYEAj9IwE9bGqoy0pRVbI0qc0TtLkxpFfCTah/2ZontgJ7+zFzncuNuR\nlKS+IrTjjq99G7xEk50r/+R/RNNQtXEuGMBQXqjRiDQIqiMx3hV54GbnP1nYzaNi\nc0hc2nSY2CnD5NWeCr1Pt0IsJbsOdICYaM9whh8XTBSQXw3Cc0RYEAECgYEAi7Vm\nDYKpAvq/UDdlpiWhbqqdn0gHBoL5tCfANkdldJkMPyvhvw7MX7IPwXphu+47KKji\nZgayBK/PsdexbOIUHlB85URSaK2LUH52KlOFYavzH3ot6jkE2ZgVnTIDZ/T5tE8u\nsn8vVd4x2Vg2FYiMwUGfmab2pnQYXk0zSU57puECgYBdxuwP43Iu3rYXkImm/AtF\nlaUNUDCLxvhZCqMaqfSWcapPrTswCq47fQCEVloRSS6j0i8za1mHqPr6Eum8MHOA\nWEc5Rh6BrHjdlF7TdK8HOJJVc744HgGaXl6s/3Gu9go+iKvm8m1QjOF7pm2VRs5o\ndNo69GveqJ+h1FWs8H5gDw==\n-----END PRIVATE KEY-----\n").replace(/\\n/g, '\n'),
-  client_email: process.env.FIREBASE_CLIENT_EMAIL || "firebase-adminsdk-fbsvc@ansh-aft.iam.gserviceaccount.com",
-  client_id: process.env.FIREBASE_CLIENT_ID || "116996985410373827841",
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: process.env.FIREBASE_CERT_URL || "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40ansh-aft.iam.gserviceaccount.com",
-  universe_domain: "googleapis.com"
+// Firebase Admin SDK initialize
+const serviceAccount = {
+  "type": "service_account",
+  "project_id": "ansh-aft",
+  "private_key_id": "54a495a8815a68f488b2e97a627b3768561f9730",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDAdBVfG2zWAgnP\n0LK4OCxjHWGA7Elcojb4//8/KMuuvUUZDZ1xxn6Wm1T1+ILWMvvbVZs4iCPsK9+e\n7mhIsNGWD3EtbIRPXCkpnBRJ7KZ8dm0kIgI1L7WG8NQYY9/hBUJkw9ZptWpg2TaN\nAVWjbfWpqx+O4nieeKd3kzyTl1C5zNaZvde2lVCcHavQvfyfkTDsW5I9XIsnUZsu\n3A+jQFNSFqwfbufxCTSvjI09hYV/GGp8BP7eoLgcx+IXPRJAGfx3jab2wtPMERWs\nLDDcWdXbH9BiZHvG7UiyBSVPopx73zUZ5bO3gzbuWIHeP3s71X9Fo5g/CYvbxfEY\nyNcA7EktAgMBAAECgf9OLtp/yKRuTGWwBxiTvj5KBaWWumcTOtMaVOVcwzX7xuhL\nRTyw+/JxPKlHQ63jVtL6R8zHKodtamVuK2wyG6MJUzynN26Izufp/34+ieUYqwOr\nqiU7diZIq41+WxSYVYqjZOu2Bf0xWwzOO7yOqB0k0GABq/9UYa+m5Cm3y8D/uYLF\nYE38hs40kupIxCDV32AYRg37xKO/qlXyYTn+2aNVtSYbxkq0zwAnwnsyYlBe4J8X\nazlhAWNO6d2G9y7JSEaKooOVPNeqw2NZPtwK+ebu1LRQIP8iaCr+CSuFdZ3srdaA\nIW/1EJf5aXgKKsdYWoonQeqxTyNLDyZx+FD/TgECgYEA7ASDHZUXzamix9vmG1Gk\nR/MOc4ZPu8IyVrgCqs0lJfKiMr/sOPnpvrULH+q08ixiH4waxLqqCE+VmSUPpVhu\n1Th3/lC4G+7gmomdi/HLbBuJRVchEtjsc/d88O6wFPCXEWTxByZSzGwf2HTY65Vq\nhZa5+/9eObeRJsHbFWB7nh0CgYEA0L9aingPQSU9Dibbyat2PL8WmSi3lYHo5+Fl\nRl/DdsOG+dNkKNvMfXO2A5WboDwWT+/Q1bcXQrjDFqFc6JfBJ64TD39Ev3uyzo1O\nIb6nKfjcW+usfm94s770HNp5kugXfld+rFnMmS6D4OpL7mOhaap9IUtrvPdp2lQr\n4bUQqlECgYEAj9IwE9bGqoy0pRVbI0qc0TtLkxpFfCTah/2ZontgJ7+zFzncuNuR\nlKS+IrTjjq99G7xEk50r/+R/RNNQtXEuGMBQXqjRiDQIqiMx3hV54GbnP1nYzaNi\nc0hc2nSY2CnD5NWeCr1Pt0IsJbsOdICYaM9whh8XTBSQXw3Cc0RYEAECgYEAi7Vm\nDYKpAvq/UDdlpiWhbqqdn0gHBoL5tCfANkdldJkMPyvhvw7MX7IPwXphu+47KKji\nZgayBK/PsdexbOIUHlB85URSaK2LUH52KlOFYavzH3ot6jkE2ZgVnTIDZ/T5tE8u\nsn8vVd4x2Vg2FYiMwUGfmab2pnQYXk0zSU57puECgYBdxuwP43Iu3rYXkImm/AtF\nlaUNUDCLxvhZCqMaqfSWcapPrTswCq47fQCEVloRSS6j0i8za1mHqPr6Eum8MHOA\nWEc5Rh6BrHjdlF7TdK8HOJJVc744HgGaXl6s/3Gu9go+iKvm8m1QjOF7pm2VRs5o\ndNo69GveqJ+h1FWs8H5gDw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@ansh-aft.iam.gserviceaccount.com",
+  "client_id": "116996985410373827841",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40ansh-aft.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
 };
 
-// Firebase Initialize
-try {
-  admin.initializeApp({
-    credential: admin.credential.cert(firebaseConfig),
-    databaseURL: process.env.FIREBASE_DATABASE_URL || "https://ansh-aft-default-rtdb.firebaseio.com"
-  });
-  console.log('✅ Firebase initialized successfully');
-} catch (error) {
-  console.error('❌ Firebase initialization error:', error);
-  // Fallback: Agar Firebase fail ho to bhi API run ho
-}
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://ansh-aft-default-rtdb.firebaseio.com"
+});
 
 const db = admin.database();
 
@@ -44,7 +37,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ========== CONFIGURATION ==========
+// ========== CONFIGURATION (Firebase se load) ==========
 let CONFIG = {
   adminUsername: 'ANSHAFT127987',
   adminPassword: 'ANSHAFTAK47',
@@ -64,310 +57,234 @@ let CONFIG = {
   logsEnabled: true
 };
 
-// ========== IN-MEMORY FALLBACK (Agar Firebase fail ho) ==========
-let memoryUsers = {
-  'ANSHAFT127987': {
-    apiKey: 'ANSHAFTAK472026',
-    plan: 'owner',
-    minuteRequests: 0,
-    dayRequests: 0,
-    lastMinuteReset: Date.now(),
-    lastDayReset: Date.now(),
-    createdAt: Date.now(),
-    status: 'active'
-  },
-  'DEMO_USER': {
-    apiKey: 'DEMOFUCK',
-    plan: 'user',
-    minuteRequests: 0,
-    dayRequests: 0,
-    lastMinuteReset: Date.now(),
-    lastDayReset: Date.now(),
-    createdAt: Date.now(),
-    status: 'active'
-  }
-};
+// ========== FIREBASE HELPER FUNCTIONS ==========
 
-let memoryLogs = [];
-let memoryFailedLogins = [];
-let memoryAnnouncements = [];
-let memoryStats = { totalRequests: 0, startTime: Date.now() };
-
-// ========== FIREBASE HELPER FUNCTIONS WITH FALLBACK ==========
-
+// Config load/save
 async function loadConfig() {
   try {
-    if (db) {
-      const snapshot = await db.ref('config').once('value');
-      if (snapshot.exists()) {
-        CONFIG = { ...CONFIG, ...snapshot.val() };
-        console.log('✅ Config loaded from Firebase');
-      } else {
-        await db.ref('config').set(CONFIG);
-        console.log('✅ Default config saved to Firebase');
-      }
+    const snapshot = await db.ref('config').once('value');
+    if (snapshot.exists()) {
+      CONFIG = { ...CONFIG, ...snapshot.val() };
+      console.log('✅ Config loaded from Firebase');
+    } else {
+      await db.ref('config').set(CONFIG);
+      console.log('✅ Default config saved to Firebase');
     }
   } catch (error) {
-    console.error('❌ Error loading config from Firebase, using defaults:', error);
+    console.error('❌ Error loading config:', error);
   }
 }
 
 async function saveConfig() {
   try {
-    if (db) {
-      await db.ref('config').set(CONFIG);
-      console.log('✅ Config saved to Firebase');
-    }
+    await db.ref('config').set(CONFIG);
+    console.log('✅ Config saved to Firebase');
   } catch (error) {
-    console.error('❌ Error saving config to Firebase:', error);
+    console.error('❌ Error saving config:', error);
   }
 }
 
+// User functions
 async function getUser(username) {
   try {
-    if (db) {
-      const snapshot = await db.ref(`users/${username}`).once('value');
-      if (snapshot.exists()) {
-        return snapshot.val();
-      }
-    }
-    // Fallback to memory
-    return memoryUsers[username] || null;
+    const snapshot = await db.ref(`users/${username}`).once('value');
+    return snapshot.val();
   } catch (error) {
-    console.error('Error getting user from Firebase, using memory:', error);
-    return memoryUsers[username] || null;
+    console.error('Error getting user:', error);
+    return null;
   }
 }
 
 async function getAllUsers() {
   try {
-    if (db) {
-      const snapshot = await db.ref('users').once('value');
-      if (snapshot.exists()) {
-        return snapshot.val();
-      }
-    }
-    return memoryUsers;
+    const snapshot = await db.ref('users').once('value');
+    return snapshot.val() || {};
   } catch (error) {
-    console.error('Error getting users from Firebase, using memory:', error);
-    return memoryUsers;
+    console.error('Error getting users:', error);
+    return {};
   }
 }
 
 async function saveUser(username, userData) {
   try {
-    if (db) {
-      await db.ref(`users/${username}`).set(userData);
-    }
-    memoryUsers[username] = userData;
+    await db.ref(`users/${username}`).set(userData);
     return true;
   } catch (error) {
-    console.error('Error saving user to Firebase, using memory:', error);
-    memoryUsers[username] = userData;
-    return true;
+    console.error('Error saving user:', error);
+    return false;
   }
 }
 
 async function deleteUser(username) {
   try {
-    if (db) {
-      await db.ref(`users/${username}`).remove();
-    }
-    delete memoryUsers[username];
+    await db.ref(`users/${username}`).remove();
     return true;
   } catch (error) {
-    console.error('Error deleting user from Firebase, using memory:', error);
-    delete memoryUsers[username];
-    return true;
+    console.error('Error deleting user:', error);
+    return false;
   }
 }
 
+// Logs functions
 async function addLog(logData) {
   try {
-    if (db) {
-      const logsRef = db.ref('logs');
-      const newLogRef = logsRef.push();
-      await newLogRef.set({
-        ...logData,
-        timestamp: new Date().toISOString()
-      });
-    }
-    memoryLogs.push({
+    const logsRef = db.ref('logs');
+    const newLogRef = logsRef.push();
+    await newLogRef.set({
       ...logData,
       timestamp: new Date().toISOString()
     });
-    if (memoryLogs.length > 1000) {
-      memoryLogs = memoryLogs.slice(-500);
+    
+    // Keep only last 500 logs
+    const snapshot = await logsRef.orderByKey().limitToLast(500).once('value');
+    const logs = snapshot.val();
+    if (logs) {
+      const keys = Object.keys(logs);
+      if (keys.length > 500) {
+        const toRemove = keys.slice(0, keys.length - 500);
+        const updates = {};
+        toRemove.forEach(key => {
+          updates[key] = null;
+        });
+        await logsRef.update(updates);
+      }
     }
     return true;
   } catch (error) {
     console.error('Error adding log:', error);
-    memoryLogs.push({
-      ...logData,
-      timestamp: new Date().toISOString()
-    });
-    return true;
+    return false;
   }
 }
 
 async function getLogs() {
   try {
-    if (db) {
-      const snapshot = await db.ref('logs').orderByKey().limitToLast(100).once('value');
-      const logs = snapshot.val();
-      if (logs) return Object.values(logs);
-    }
-    return memoryLogs;
+    const snapshot = await db.ref('logs').orderByKey().limitToLast(100).once('value');
+    const logs = snapshot.val();
+    if (!logs) return [];
+    return Object.values(logs);
   } catch (error) {
     console.error('Error getting logs:', error);
-    return memoryLogs;
+    return [];
   }
 }
 
 async function clearLogs() {
   try {
-    if (db) await db.ref('logs').remove();
-    memoryLogs = [];
+    await db.ref('logs').remove();
     return true;
   } catch (error) {
     console.error('Error clearing logs:', error);
-    memoryLogs = [];
-    return true;
+    return false;
   }
 }
 
+// Failed logins functions
 async function addFailedLogin(data) {
   try {
-    if (db) {
-      const ref = db.ref('failedLogins');
-      const newRef = ref.push();
-      await newRef.set({
-        ...data,
-        timestamp: new Date().toISOString()
-      });
-    }
-    memoryFailedLogins.push({
+    const ref = db.ref('failedLogins');
+    const newRef = ref.push();
+    await newRef.set({
       ...data,
       timestamp: new Date().toISOString()
     });
     return true;
   } catch (error) {
     console.error('Error adding failed login:', error);
-    memoryFailedLogins.push({
-      ...data,
-      timestamp: new Date().toISOString()
-    });
-    return true;
+    return false;
   }
 }
 
 async function getFailedLogins() {
   try {
-    if (db) {
-      const snapshot = await db.ref('failedLogins').orderByKey().limitToLast(50).once('value');
-      const data = snapshot.val();
-      if (data) return Object.values(data);
-    }
-    return memoryFailedLogins;
+    const snapshot = await db.ref('failedLogins').orderByKey().limitToLast(50).once('value');
+    const data = snapshot.val();
+    if (!data) return [];
+    return Object.values(data);
   } catch (error) {
     console.error('Error getting failed logins:', error);
-    return memoryFailedLogins;
+    return [];
   }
 }
 
 async function clearFailedLogins() {
   try {
-    if (db) await db.ref('failedLogins').remove();
-    memoryFailedLogins = [];
+    await db.ref('failedLogins').remove();
     return true;
   } catch (error) {
     console.error('Error clearing failed logins:', error);
-    memoryFailedLogins = [];
-    return true;
+    return false;
   }
 }
 
+// Announcements functions
 async function addAnnouncement(message) {
   try {
-    if (db) {
-      const ref = db.ref('announcements');
-      const newRef = ref.push();
-      await newRef.set({
-        id: Date.now(),
-        message,
-        timestamp: new Date().toISOString()
-      });
-    }
-    memoryAnnouncements.push({ id: Date.now(), message, timestamp: new Date().toISOString() });
+    const ref = db.ref('announcements');
+    const newRef = ref.push();
+    await newRef.set({
+      id: Date.now(),
+      message,
+      timestamp: new Date().toISOString()
+    });
     return true;
   } catch (error) {
     console.error('Error adding announcement:', error);
-    memoryAnnouncements.push({ id: Date.now(), message, timestamp: new Date().toISOString() });
-    return true;
+    return false;
   }
 }
 
 async function getAnnouncements() {
   try {
-    if (db) {
-      const snapshot = await db.ref('announcements').once('value');
-      const data = snapshot.val();
-      if (data) return Object.values(data);
-    }
-    return memoryAnnouncements;
+    const snapshot = await db.ref('announcements').once('value');
+    const data = snapshot.val();
+    if (!data) return [];
+    return Object.values(data);
   } catch (error) {
     console.error('Error getting announcements:', error);
-    return memoryAnnouncements;
+    return [];
   }
 }
 
 async function deleteAnnouncement(id) {
   try {
-    if (db) {
-      const snapshot = await db.ref('announcements').once('value');
-      const data = snapshot.val();
-      if (data) {
-        for (const key in data) {
-          if (data[key].id === parseInt(id)) {
-            await db.ref(`announcements/${key}`).remove();
-            break;
-          }
+    const snapshot = await db.ref('announcements').once('value');
+    const data = snapshot.val();
+    if (data) {
+      for (const key in data) {
+        if (data[key].id === parseInt(id)) {
+          await db.ref(`announcements/${key}`).remove();
+          return true;
         }
       }
     }
-    memoryAnnouncements = memoryAnnouncements.filter(a => a.id !== parseInt(id));
-    return true;
+    return false;
   } catch (error) {
     console.error('Error deleting announcement:', error);
-    memoryAnnouncements = memoryAnnouncements.filter(a => a.id !== parseInt(id));
-    return true;
+    return false;
   }
 }
 
+// Stats functions
 async function getSystemStats() {
   try {
-    if (db) {
-      const snapshot = await db.ref('systemStats').once('value');
-      if (snapshot.exists()) {
-        return snapshot.val();
-      }
+    const snapshot = await db.ref('systemStats').once('value');
+    if (snapshot.exists()) {
+      return snapshot.val();
     }
-    return memoryStats;
+    return { totalRequests: 0, startTime: Date.now() };
   } catch (error) {
     console.error('Error getting stats:', error);
-    return memoryStats;
+    return { totalRequests: 0, startTime: Date.now() };
   }
 }
 
 async function saveSystemStats(stats) {
   try {
-    if (db) await db.ref('systemStats').set(stats);
-    memoryStats = stats;
+    await db.ref('systemStats').set(stats);
     return true;
   } catch (error) {
     console.error('Error saving stats:', error);
-    memoryStats = stats;
-    return true;
+    return false;
   }
 }
 
@@ -394,6 +311,7 @@ function checkAndResetLimits(user) {
 
 // ========== API KEY VALIDATION ==========
 async function validateApiKey(req, res, next) {
+  // Load latest config
   await loadConfig();
   
   if (CONFIG.maintenance) {
@@ -422,6 +340,7 @@ async function validateApiKey(req, res, next) {
     });
   }
 
+  // Get all users from Firebase
   const users = await getAllUsers();
   let user = null;
   let username = null;
@@ -482,8 +401,10 @@ async function validateApiKey(req, res, next) {
   user.minuteRequests++;
   user.dayRequests++;
   
+  // Update user in Firebase
   await saveUser(username, user);
   
+  // Update stats
   const stats = await getSystemStats();
   stats.totalRequests = (stats.totalRequests || 0) + 1;
   await saveSystemStats(stats);
@@ -525,6 +446,7 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
       });
     }
 
+    // Validate RC number format
     const rcRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$/;
     if (!rcRegex.test(rc.toUpperCase())) {
       return res.status(400).json({
@@ -543,12 +465,14 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
       });
     }
 
-    const fetch = require('node-fetch');
+    // ========== CALL EXTERNAL API ==========
     const response = await fetch('https://vehicleinfobyterabaap.vercel.app/lookup?rc=' + encodeURIComponent(rc.toUpperCase()));
     const externalData = await response.json();
     
+    // ========== REMOVE COPYRIGHT AND TAKE ALL DATA ==========
     const { copyright, ...cleanData } = externalData;
     
+    // ========== ADD OUR METADATA ==========
     cleanData.MADE_BY = 'ANSH AFT';
     cleanData.CHANNEL = 'https://t.me/premium_dark_33';
     cleanData.USERNAME = '@KINGFFAIAK47x';
@@ -615,7 +539,6 @@ app.get('/token', async (req, res) => {
 
 // ========== LOGIN PAGE HTML ==========
 function getLoginPageHTML(error = '') {
-  // ... (Same as before, keeping it short for response)
   return `
 <!DOCTYPE html>
 <html>
@@ -892,6 +815,7 @@ function getAdminPanelHTML() {
     .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .mt-10 { margin-top: 10px; }
     .color-picker { width: 60px !important; height: 45px; padding: 0 !important; cursor: pointer; }
+    .loading { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -915,7 +839,6 @@ function getAdminPanelHTML() {
     <div class="stat-card"><div class="number" id="uptime">0</div><div class="label">⏱ UPTIME (s)</div></div>
   </div>
 
-  <!-- Controls -->
   <div class="controls-grid">
     <div class="control-card">
       <h3>🔧 API CONTROL</h3>
@@ -992,7 +915,6 @@ function getAdminPanelHTML() {
     </div>
   </div>
 
-  <!-- User Table -->
   <div class="table-container">
     <h3>👥 USER MANAGEMENT</h3>
     <table>
@@ -1001,7 +923,6 @@ function getAdminPanelHTML() {
     </table>
   </div>
 
-  <!-- Logs -->
   <div class="table-container">
     <h3>📝 RECENT LOGS</h3>
     <table>
@@ -1010,7 +931,6 @@ function getAdminPanelHTML() {
     </table>
   </div>
 
-  <!-- Failed Logins -->
   <div class="table-container">
     <h3>🔐 FAILED LOGIN ATTEMPTS</h3>
     <table>
@@ -1047,16 +967,16 @@ async function loadDashboard() {
 
     let html = '';
     if (data.users) {
-      Object.entries(data.users).forEach(([username, u]) => {
+      data.users.forEach(u => {
         html += '<tr>' +
-          '<td>' + username + '</td>' +
+          '<td>' + u.username + '</td>' +
           '<td style="font-size:0.6em;">' + u.apiKey + '</td>' +
           '<td><span class="badge badge-' + u.plan + '">' + u.plan.toUpperCase() + '</span></td>' +
           '<td>' + u.minuteRequests + '/' + u.dayRequests + '</td>' +
           '<td><span class="badge badge-' + (u.status || 'active') + '">' + (u.status || 'ACTIVE').toUpperCase() + '</span></td>' +
           '<td>' +
-            (username !== 'ANSHAFT127987' ? '<button class="action-btn danger" onclick="deleteUser(\\'' + username + '\\')">DEL</button>' : '') +
-            '<button class="action-btn warning" onclick="toggleUserStatus(\\'' + username + '\\')">TOG</button>' +
+            (u.username !== 'ANSHAFT127987' ? '<button class="action-btn danger" onclick="deleteUser(\\'' + u.username + '\\')">DEL</button>' : '') +
+            '<button class="action-btn warning" onclick="toggleUserStatus(\\'' + u.username + '\\')">TOG</button>' +
           '</td>' +
         '</tr>';
       });
@@ -1101,6 +1021,9 @@ async function fetchAdmin(endpoint, options = {}) {
       headers: { 'Content-Type': 'application/json' }
     });
     const data = await response.json();
+    if (data.success === false && data.error) {
+      alert('❌ ' + data.error);
+    }
     return data;
   } catch (err) {
     alert('❌ Error: ' + err.message);
@@ -1320,6 +1243,12 @@ setInterval(loadDashboard, 15000);
 
 // ========== ADMIN API ENDPOINTS ==========
 
+// Helper function to check admin auth (using query param for simplicity)
+function isAdmin(req, res, next) {
+  // You can add proper auth check here
+  next();
+}
+
 app.post('/admin/login', async (req, res) => {
   await loadConfig();
   const { username, password } = req.body;
@@ -1342,6 +1271,11 @@ app.get('/admin/stats', async (req, res) => {
   const failedLogins = await getFailedLogins();
   const announcements = await getAnnouncements();
   
+  const userList = Object.entries(users).map(([username, data]) => ({
+    username,
+    ...data
+  }));
+  
   res.json({
     totalUsers: Object.keys(users).length,
     totalRequests: stats.totalRequests || 0,
@@ -1351,7 +1285,7 @@ app.get('/admin/stats', async (req, res) => {
     apiStatus: CONFIG.apiStatus,
     theme: CONFIG.theme,
     version: CONFIG.version,
-    users: users,
+    users: userList,
     logs: logs,
     failedLogins: failedLogins,
     announcements: announcements,
@@ -1374,7 +1308,9 @@ app.post('/admin/api-status', async (req, res) => {
 });
 
 app.post('/admin/update-keys', async (req, res) => {
+  await loadConfig();
   const { ownerKey, userKey, freeKey } = req.body;
+  
   const users = await getAllUsers();
   
   if (ownerKey && users['ANSHAFT127987']) {
@@ -1490,6 +1426,7 @@ app.post('/admin/delete-user', async (req, res) => {
 
 app.post('/admin/toggle-user', async (req, res) => {
   const { username } = req.body;
+  
   const users = await getAllUsers();
   if (!users[username]) {
     return res.json({ success: false, error: 'User not found' });
@@ -1535,6 +1472,7 @@ app.post('/admin/reset-config', async (req, res) => {
   CONFIG.apiStatus = 'online';
   CONFIG.maintenance = false;
   CONFIG.logsEnabled = true;
+  
   await saveConfig();
   res.json({ success: true });
 });
@@ -1607,23 +1545,68 @@ app.use((req, res) => {
   });
 });
 
-// ========== EXPORT FOR VERCEL ==========
-module.exports = app;
+// ========== START SERVER ==========
+const PORT = process.env.PORT || 3000;
 
-// ========== START SERVER (Local) ==========
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, async () => {
-    console.log('✅ Vehicle API Server running on port ' + PORT);
-    console.log('📌 Login Page: http://localhost:' + PORT + '/');
-    console.log('📌 API Status: http://localhost:' + PORT + '/api/status');
-    console.log('📌 API Endpoint: http://localhost:' + PORT + '/api/vehicle-info?rc=DL10AB1234&api_key=DEMOFUCK');
-    console.log('');
-    console.log('🔑 Default Credentials:');
-    console.log('   Username: ANSHAFT127987');
-    console.log('   Password: ANSHAFTAK47');
-    console.log('   API Key: DEMOFUCK (for testing)');
-    console.log('');
-    console.log('🔥 Firebase Database Connected');
-  });
+// Initialize Firebase data
+async function initializeFirebase() {
+  console.log('🔌 Connecting to Firebase...');
+  
+  // Load config
+  await loadConfig();
+  
+  // Check if default users exist
+  const users = await getAllUsers();
+  if (!users['ANSHAFT127987']) {
+    console.log('📝 Creating default owner user...');
+    await saveUser('ANSHAFT127987', {
+      apiKey: 'ANSHAFTAK472026',
+      plan: 'owner',
+      minuteRequests: 0,
+      dayRequests: 0,
+      lastMinuteReset: Date.now(),
+      lastDayReset: Date.now(),
+      createdAt: Date.now(),
+      status: 'active'
+    });
+  }
+  
+  if (!users['DEMO_USER']) {
+    console.log('📝 Creating demo user...');
+    await saveUser('DEMO_USER', {
+      apiKey: 'DEMOFUCK',
+      plan: 'user',
+      minuteRequests: 0,
+      dayRequests: 0,
+      lastMinuteReset: Date.now(),
+      lastDayReset: Date.now(),
+      createdAt: Date.now(),
+      status: 'active'
+    });
+  }
+  
+  // Initialize stats if not exists
+  const stats = await getSystemStats();
+  if (!stats.startTime) {
+    await saveSystemStats({ totalRequests: 0, startTime: Date.now() });
+  }
+  
+  console.log('✅ Firebase initialized successfully!');
 }
+
+app.listen(PORT, async () => {
+  await initializeFirebase();
+  console.log('✅ Vehicle API Server running on port ' + PORT);
+  console.log('📌 Login Page: http://localhost:' + PORT + '/');
+  console.log('📌 API Status: http://localhost:' + PORT + '/api/status');
+  console.log('📌 API Endpoint: http://localhost:' + PORT + '/api/vehicle-info?rc=DL10AB1234&api_key=DEMOFUCK');
+  console.log('');
+  console.log('🔑 Default Credentials:');
+  console.log('   Username: ANSHAFT127987');
+  console.log('   Password: ANSHAFTAK47');
+  console.log('   API Key: DEMOFUCK (for testing)');
+  console.log('');
+  console.log('🔥 Firebase Database: https://ansh-aft-default-rtdb.firebaseio.com');
+});
+
+module.exports = app;
