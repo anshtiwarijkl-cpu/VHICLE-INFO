@@ -1,6 +1,31 @@
 const express = require('express');
 const app = express();
 
+// ========== FIREBASE SETUP ==========
+const admin = require('firebase-admin');
+
+// Firebase Admin SDK initialize
+const serviceAccount = {
+  "type": "service_account",
+  "project_id": "ansh-aft",
+  "private_key_id": "54a495a8815a68f488b2e97a627b3768561f9730",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDAdBVfG2zWAgnP\n0LK4OCxjHWGA7Elcojb4//8/KMuuvUUZDZ1xxn6Wm1T1+ILWMvvbVZs4iCPsK9+e\n7mhIsNGWD3EtbIRPXCkpnBRJ7KZ8dm0kIgI1L7WG8NQYY9/hBUJkw9ZptWpg2TaN\nAVWjbfWpqx+O4nieeKd3kzyTl1C5zNaZvde2lVCcHavQvfyfkTDsW5I9XIsnUZsu\n3A+jQFNSFqwfbufxCTSvjI09hYV/GGp8BP7eoLgcx+IXPRJAGfx3jab2wtPMERWs\nLDDcWdXbH9BiZHvG7UiyBSVPopx73zUZ5bO3gzbuWIHeP3s71X9Fo5g/CYvbxfEY\nyNcA7EktAgMBAAECgf9OLtp/yKRuTGWwBxiTvj5KBaWWumcTOtMaVOVcwzX7xuhL\nRTyw+/JxPKlHQ63jVtL6R8zHKodtamVuK2wyG6MJUzynN26Izufp/34+ieUYqwOr\nqiU7diZIq41+WxSYVYqjZOu2Bf0xWwzOO7yOqB0k0GABq/9UYa+m5Cm3y8D/uYLF\nYE38hs40kupIxCDV32AYRg37xKO/qlXyYTn+2aNVtSYbxkq0zwAnwnsyYlBe4J8X\nazlhAWNO6d2G9y7JSEaKooOVPNeqw2NZPtwK+ebu1LRQIP8iaCr+CSuFdZ3srdaA\nIW/1EJf5aXgKKsdYWoonQeqxTyNLDyZx+FD/TgECgYEA7ASDHZUXzamix9vmG1Gk\nR/MOc4ZPu8IyVrgCqs0lJfKiMr/sOPnpvrULH+q08ixiH4waxLqqCE+VmSUPpVhu\n1Th3/lC4G+7gmomdi/HLbBuJRVchEtjsc/d88O6wFPCXEWTxByZSzGwf2HTY65Vq\nhZa5+/9eObeRJsHbFWB7nh0CgYEA0L9aingPQSU9Dibbyat2PL8WmSi3lYHo5+Fl\nRl/DdsOG+dNkKNvMfXO2A5WboDwWT+/Q1bcXQrjDFqFc6JfBJ64TD39Ev3uyzo1O\nIb6nKfjcW+usfm94s770HNp5kugXfld+rFnMmS6D4OpL7mOhaap9IUtrvPdp2lQr\n4bUQqlECgYEAj9IwE9bGqoy0pRVbI0qc0TtLkxpFfCTah/2ZontgJ7+zFzncuNuR\nlKS+IrTjjq99G7xEk50r/+R/RNNQtXEuGMBQXqjRiDQIqiMx3hV54GbnP1nYzaNi\nc0hc2nSY2CnD5NWeCr1Pt0IsJbsOdICYaM9whh8XTBSQXw3Cc0RYEAECgYEAi7Vm\nDYKpAvq/UDdlpiWhbqqdn0gHBoL5tCfANkdldJkMPyvhvw7MX7IPwXphu+47KKji\nZgayBK/PsdexbOIUHlB85URSaK2LUH52KlOFYavzH3ot6jkE2ZgVnTIDZ/T5tE8u\nsn8vVd4x2Vg2FYiMwUGfmab2pnQYXk0zSU57puECgYBdxuwP43Iu3rYXkImm/AtF\nlaUNUDCLxvhZCqMaqfSWcapPrTswCq47fQCEVloRSS6j0i8za1mHqPr6Eum8MHOA\nWEc5Rh6BrHjdlF7TdK8HOJJVc744HgGaXl6s/3Gu9go+iKvm8m1QjOF7pm2VRs5o\ndNo69GveqJ+h1FWs8H5gDw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@ansh-aft.iam.gserviceaccount.com",
+  "client_id": "116996985410373827841",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40ansh-aft.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://ansh-aft-default-rtdb.firebaseio.com"
+});
+
+const db = admin.database();
+
 // ========== CORS ==========
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -12,7 +37,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ========== CONFIGURATION ==========
+// ========== CONFIGURATION (Firebase se load) ==========
 let CONFIG = {
   adminUsername: 'ANSHAFT127987',
   adminPassword: 'ANSHAFTAK47',
@@ -32,34 +57,236 @@ let CONFIG = {
   logsEnabled: true
 };
 
-// ========== DATA STORAGE ==========
-let users = {
-  'ANSHAFT127987': {
-    apiKey: 'ANSHAFTAK472026',
-    plan: 'owner',
-    minuteRequests: 0,
-    dayRequests: 0,
-    lastMinuteReset: Date.now(),
-    lastDayReset: Date.now(),
-    createdAt: Date.now(),
-    status: 'active'
-  },
-  'DEMO_USER': {
-    apiKey: 'DEMOFUCK',
-    plan: 'user',
-    minuteRequests: 0,
-    dayRequests: 0,
-    lastMinuteReset: Date.now(),
-    lastDayReset: Date.now(),
-    createdAt: Date.now(),
-    status: 'active'
-  }
-};
+// ========== FIREBASE HELPER FUNCTIONS ==========
 
-let usageLogs = [];
-let systemStats = { totalRequests: 0, startTime: Date.now() };
-let failedLogins = [];
-let announcements = [];
+// Config load/save
+async function loadConfig() {
+  try {
+    const snapshot = await db.ref('config').once('value');
+    if (snapshot.exists()) {
+      CONFIG = { ...CONFIG, ...snapshot.val() };
+      console.log('✅ Config loaded from Firebase');
+    } else {
+      await db.ref('config').set(CONFIG);
+      console.log('✅ Default config saved to Firebase');
+    }
+  } catch (error) {
+    console.error('❌ Error loading config:', error);
+  }
+}
+
+async function saveConfig() {
+  try {
+    await db.ref('config').set(CONFIG);
+    console.log('✅ Config saved to Firebase');
+  } catch (error) {
+    console.error('❌ Error saving config:', error);
+  }
+}
+
+// User functions
+async function getUser(username) {
+  try {
+    const snapshot = await db.ref(`users/${username}`).once('value');
+    return snapshot.val();
+  } catch (error) {
+    console.error('Error getting user:', error);
+    return null;
+  }
+}
+
+async function getAllUsers() {
+  try {
+    const snapshot = await db.ref('users').once('value');
+    return snapshot.val() || {};
+  } catch (error) {
+    console.error('Error getting users:', error);
+    return {};
+  }
+}
+
+async function saveUser(username, userData) {
+  try {
+    await db.ref(`users/${username}`).set(userData);
+    return true;
+  } catch (error) {
+    console.error('Error saving user:', error);
+    return false;
+  }
+}
+
+async function deleteUser(username) {
+  try {
+    await db.ref(`users/${username}`).remove();
+    return true;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
+}
+
+// Logs functions
+async function addLog(logData) {
+  try {
+    const logsRef = db.ref('logs');
+    const newLogRef = logsRef.push();
+    await newLogRef.set({
+      ...logData,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Keep only last 500 logs
+    const snapshot = await logsRef.orderByKey().limitToLast(500).once('value');
+    const logs = snapshot.val();
+    if (logs) {
+      const keys = Object.keys(logs);
+      if (keys.length > 500) {
+        const toRemove = keys.slice(0, keys.length - 500);
+        const updates = {};
+        toRemove.forEach(key => {
+          updates[key] = null;
+        });
+        await logsRef.update(updates);
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('Error adding log:', error);
+    return false;
+  }
+}
+
+async function getLogs() {
+  try {
+    const snapshot = await db.ref('logs').orderByKey().limitToLast(100).once('value');
+    const logs = snapshot.val();
+    if (!logs) return [];
+    return Object.values(logs);
+  } catch (error) {
+    console.error('Error getting logs:', error);
+    return [];
+  }
+}
+
+async function clearLogs() {
+  try {
+    await db.ref('logs').remove();
+    return true;
+  } catch (error) {
+    console.error('Error clearing logs:', error);
+    return false;
+  }
+}
+
+// Failed logins functions
+async function addFailedLogin(data) {
+  try {
+    const ref = db.ref('failedLogins');
+    const newRef = ref.push();
+    await newRef.set({
+      ...data,
+      timestamp: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error('Error adding failed login:', error);
+    return false;
+  }
+}
+
+async function getFailedLogins() {
+  try {
+    const snapshot = await db.ref('failedLogins').orderByKey().limitToLast(50).once('value');
+    const data = snapshot.val();
+    if (!data) return [];
+    return Object.values(data);
+  } catch (error) {
+    console.error('Error getting failed logins:', error);
+    return [];
+  }
+}
+
+async function clearFailedLogins() {
+  try {
+    await db.ref('failedLogins').remove();
+    return true;
+  } catch (error) {
+    console.error('Error clearing failed logins:', error);
+    return false;
+  }
+}
+
+// Announcements functions
+async function addAnnouncement(message) {
+  try {
+    const ref = db.ref('announcements');
+    const newRef = ref.push();
+    await newRef.set({
+      id: Date.now(),
+      message,
+      timestamp: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error('Error adding announcement:', error);
+    return false;
+  }
+}
+
+async function getAnnouncements() {
+  try {
+    const snapshot = await db.ref('announcements').once('value');
+    const data = snapshot.val();
+    if (!data) return [];
+    return Object.values(data);
+  } catch (error) {
+    console.error('Error getting announcements:', error);
+    return [];
+  }
+}
+
+async function deleteAnnouncement(id) {
+  try {
+    const snapshot = await db.ref('announcements').once('value');
+    const data = snapshot.val();
+    if (data) {
+      for (const key in data) {
+        if (data[key].id === parseInt(id)) {
+          await db.ref(`announcements/${key}`).remove();
+          return true;
+        }
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error('Error deleting announcement:', error);
+    return false;
+  }
+}
+
+// Stats functions
+async function getSystemStats() {
+  try {
+    const snapshot = await db.ref('systemStats').once('value');
+    if (snapshot.exists()) {
+      return snapshot.val();
+    }
+    return { totalRequests: 0, startTime: Date.now() };
+  } catch (error) {
+    console.error('Error getting stats:', error);
+    return { totalRequests: 0, startTime: Date.now() };
+  }
+}
+
+async function saveSystemStats(stats) {
+  try {
+    await db.ref('systemStats').set(stats);
+    return true;
+  } catch (error) {
+    console.error('Error saving stats:', error);
+    return false;
+  }
+}
 
 // ========== MIDDLEWARE ==========
 app.use(express.json());
@@ -83,7 +310,10 @@ function checkAndResetLimits(user) {
 }
 
 // ========== API KEY VALIDATION ==========
-function validateApiKey(req, res, next) {
+async function validateApiKey(req, res, next) {
+  // Load latest config
+  await loadConfig();
+  
   if (CONFIG.maintenance) {
     return res.status(503).json({
       error: 'API Under Maintenance',
@@ -110,8 +340,11 @@ function validateApiKey(req, res, next) {
     });
   }
 
+  // Get all users from Firebase
+  const users = await getAllUsers();
   let user = null;
   let username = null;
+  
   for (const [key, value] of Object.entries(users)) {
     if (value.apiKey === apiKey) {
       user = value;
@@ -167,20 +400,22 @@ function validateApiKey(req, res, next) {
 
   user.minuteRequests++;
   user.dayRequests++;
-  systemStats.totalRequests++;
+  
+  // Update user in Firebase
+  await saveUser(username, user);
+  
+  // Update stats
+  const stats = await getSystemStats();
+  stats.totalRequests = (stats.totalRequests || 0) + 1;
+  await saveSystemStats(stats);
   
   if (CONFIG.logsEnabled) {
-    usageLogs.push({
+    await addLog({
       username: username,
       apiKey: apiKey.substring(0, 8) + '...',
-      timestamp: new Date().toISOString(),
       ip: req.ip || 'self',
       plan: user.plan
     });
-  }
-
-  if (usageLogs.length > 1000) {
-    usageLogs = usageLogs.slice(-500);
   }
 
   req.user = { username: username, ...user };
@@ -191,6 +426,8 @@ function validateApiKey(req, res, next) {
 app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
   try {
     const rc = req.query.rc;
+    const users = await getAllUsers();
+    const user = users[req.user.username];
     
     if (!rc) {
       return res.status(400).json({
@@ -262,12 +499,16 @@ app.get('/api/vehicle-info', validateApiKey, async (req, res) => {
 });
 
 // ========== API STATUS ==========
-app.get('/api/status', (req, res) => {
+app.get('/api/status', async (req, res) => {
+  await loadConfig();
+  const stats = await getSystemStats();
+  const users = await getAllUsers();
+  
   res.json({
     status: CONFIG.apiStatus,
     version: CONFIG.version,
-    uptime: Math.floor((Date.now() - systemStats.startTime) / 1000),
-    total_requests: systemStats.totalRequests,
+    uptime: Math.floor((Date.now() - (stats.startTime || Date.now())) / 1000),
+    total_requests: stats.totalRequests || 0,
     total_users: Object.keys(users).length,
     maintenance: CONFIG.maintenance,
     timestamp: new Date().toISOString(),
@@ -282,12 +523,16 @@ app.get('/', (req, res) => {
 });
 
 // ========== TOKEN ROUTE - ADMIN AUTH ==========
-app.get('/token', (req, res) => {
+app.get('/token', async (req, res) => {
+  await loadConfig();
   const { username, password } = req.query;
   
   if (username && password && username === CONFIG.adminUsername && password === CONFIG.adminPassword) {
     res.send(getAdminPanelHTML());
   } else {
+    if (username) {
+      await addFailedLogin({ username, ip: req.ip || req.headers['x-forwarded-for'] || 'unknown' });
+    }
     res.send(getLoginPageHTML('❌ Invalid credentials! Please try again.'));
   }
 });
@@ -570,12 +815,13 @@ function getAdminPanelHTML() {
     .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .mt-10 { margin-top: 10px; }
     .color-picker { width: 60px !important; height: 45px; padding: 0 !important; cursor: pointer; }
+    .loading { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div><h1 class="glow">🚗 VEHICLE CONTROL</h1><p style="font-size:0.6em; opacity:0.5;">MADE BY ANSH AFT | v3.0</p></div>
+    <div><h1 class="glow">🚗 VEHICLE CONTROL</h1><p style="font-size:0.6em; opacity:0.5;">MADE BY ANSH AFT | v3.0 | FIREBASE</p></div>
     <div class="flex-row">
       <span id="apiStatusText" style="font-size:0.7em;">● ONLINE</span>
       <span id="maintenanceText" style="font-size:0.7em;"></span>
@@ -694,95 +940,118 @@ function getAdminPanelHTML() {
   </div>
 
   <p style="text-align:center; margin-top:30px; font-size:0.6em; opacity:0.3;">
-    🔗 <a href="https://t.me/premium_dark_33" style="color:${color};">@KINGFFAIAK47x</a> | MADE BY ANSH AFT
+    🔗 <a href="https://t.me/premium_dark_33" style="color:${color};">@KINGFFAIAK47x</a> | MADE BY ANSH AFT | FIREBASE
   </p>
 </div>
 
 <script>
-function loadDashboard() {
-  fetch('/admin/stats')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('totalUsers').textContent = data.totalUsers || 0;
-      document.getElementById('totalRequests').textContent = data.totalRequests || 0;
-      document.getElementById('ownerUsers').textContent = data.ownerUsers || 0;
-      document.getElementById('userUsers').textContent = data.userUsers || 0;
-      document.getElementById('freeUsers').textContent = data.freeUsers || 0;
-      document.getElementById('uptime').textContent = data.uptime || 0;
-      document.getElementById('apiStatusText').textContent = data.apiStatus ? '● ' + data.apiStatus.toUpperCase() : '● ONLINE';
-      
-      if (data.maintenance) {
-        document.getElementById('maintenanceText').textContent = '⚠ MAINTENANCE';
-        document.getElementById('maintenanceText').style.color = '#ff8800';
-      } else {
-        document.getElementById('maintenanceText').textContent = '';
-      }
+async function loadDashboard() {
+  try {
+    const response = await fetch('/admin/stats');
+    const data = await response.json();
+    
+    document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+    document.getElementById('totalRequests').textContent = data.totalRequests || 0;
+    document.getElementById('ownerUsers').textContent = data.ownerUsers || 0;
+    document.getElementById('userUsers').textContent = data.userUsers || 0;
+    document.getElementById('freeUsers').textContent = data.freeUsers || 0;
+    document.getElementById('uptime').textContent = data.uptime || 0;
+    document.getElementById('apiStatusText').textContent = data.apiStatus ? '● ' + data.apiStatus.toUpperCase() : '● ONLINE';
+    
+    if (data.maintenance) {
+      document.getElementById('maintenanceText').textContent = '⚠ MAINTENANCE';
+      document.getElementById('maintenanceText').style.color = '#ff8800';
+    } else {
+      document.getElementById('maintenanceText').textContent = '';
+    }
 
-      let html = '';
-      if (data.users) {
-        data.users.forEach(u => {
-          html += '<tr>' +
-            '<td>' + u.username + '</td>' +
-            '<td style="font-size:0.6em;">' + u.apiKey + '</td>' +
-            '<td><span class="badge badge-' + u.plan + '">' + u.plan.toUpperCase() + '</span></td>' +
-            '<td>' + u.minuteRequests + '/' + u.dayRequests + '</td>' +
-            '<td><span class="badge badge-' + (u.status || 'active') + '">' + (u.status || 'ACTIVE').toUpperCase() + '</span></td>' +
-            '<td>' +
-              (u.username !== 'ANSHAFT127987' ? '<button class="action-btn danger" onclick="deleteUser(\\'' + u.username + '\\')">DEL</button>' : '') +
-              '<button class="action-btn warning" onclick="toggleUserStatus(\\'' + u.username + '\\')">TOG</button>' +
-            '</td>' +
-          '</tr>';
-        });
-      }
-      document.getElementById('userTableBody').innerHTML = html;
+    let html = '';
+    if (data.users) {
+      data.users.forEach(u => {
+        html += '<tr>' +
+          '<td>' + u.username + '</td>' +
+          '<td style="font-size:0.6em;">' + u.apiKey + '</td>' +
+          '<td><span class="badge badge-' + u.plan + '">' + u.plan.toUpperCase() + '</span></td>' +
+          '<td>' + u.minuteRequests + '/' + u.dayRequests + '</td>' +
+          '<td><span class="badge badge-' + (u.status || 'active') + '">' + (u.status || 'ACTIVE').toUpperCase() + '</span></td>' +
+          '<td>' +
+            (u.username !== 'ANSHAFT127987' ? '<button class="action-btn danger" onclick="deleteUser(\\'' + u.username + '\\')">DEL</button>' : '') +
+            '<button class="action-btn warning" onclick="toggleUserStatus(\\'' + u.username + '\\')">TOG</button>' +
+          '</td>' +
+        '</tr>';
+      });
+    }
+    document.getElementById('userTableBody').innerHTML = html;
 
-      let logsHtml = '';
-      if (data.logs) {
-        data.logs.slice(-20).reverse().forEach(log => {
-          logsHtml += '<tr><td>' + log.username + '</td><td style="font-size:0.6em;">' + log.apiKey + '</td><td>' + log.ip + '</td><td style="font-size:0.6em;">' + new Date(log.timestamp).toLocaleString() + '</td></tr>';
-        });
-      }
-      document.getElementById('logsBody').innerHTML = logsHtml;
+    let logsHtml = '';
+    if (data.logs) {
+      data.logs.slice(-20).reverse().forEach(log => {
+        logsHtml += '<tr><td>' + log.username + '</td><td style="font-size:0.6em;">' + log.apiKey + '</td><td>' + log.ip + '</td><td style="font-size:0.6em;">' + new Date(log.timestamp).toLocaleString() + '</td></tr>';
+      });
+    }
+    document.getElementById('logsBody').innerHTML = logsHtml;
 
-      let failedHtml = '';
-      if (data.failedLogins) {
-        data.failedLogins.slice(-10).reverse().forEach(f => {
-          failedHtml += '<tr><td>' + f.username + '</td><td>' + f.ip + '</td><td style="font-size:0.6em;">' + new Date(f.timestamp).toLocaleString() + '</td></tr>';
-        });
-      }
-      document.getElementById('failedLoginsBody').innerHTML = failedHtml;
+    let failedHtml = '';
+    if (data.failedLogins) {
+      data.failedLogins.slice(-10).reverse().forEach(f => {
+        failedHtml += '<tr><td>' + f.username + '</td><td>' + f.ip + '</td><td style="font-size:0.6em;">' + new Date(f.timestamp).toLocaleString() + '</td></tr>';
+      });
+    }
+    document.getElementById('failedLoginsBody').innerHTML = failedHtml;
 
-      let annHtml = '';
-      if (data.announcements) {
-        data.announcements.forEach(a => {
-          annHtml += '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #00ff4120;padding:5px 0;">' +
-            '<span>' + a.message + '</span>' +
-            '<button class="action-btn danger" onclick="deleteAnnouncement(' + a.id + ')">✕</button>' +
-          '</div>';
-        });
-      }
-      document.getElementById('announcementList').innerHTML = annHtml;
-    })
-    .catch(err => console.error('Error:', err));
+    let annHtml = '';
+    if (data.announcements) {
+      data.announcements.forEach(a => {
+        annHtml += '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #00ff4120;padding:5px 0;">' +
+          '<span>' + a.message + '</span>' +
+          '<button class="action-btn danger" onclick="deleteAnnouncement(' + a.id + ')">✕</button>' +
+        '</div>';
+      });
+    }
+    document.getElementById('announcementList').innerHTML = annHtml;
+  } catch (err) {
+    console.error('Error loading dashboard:', err);
+  }
+}
+
+async function fetchAdmin(endpoint, options = {}) {
+  try {
+    const response = await fetch(endpoint, {
+      ...options,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await response.json();
+    if (data.success === false && data.error) {
+      alert('❌ ' + data.error);
+    }
+    return data;
+  } catch (err) {
+    alert('❌ Error: ' + err.message);
+    return null;
+  }
 }
 
 function updateApiStatus() {
   const status = document.getElementById('apiStatusSelect').value;
-  fetch('/admin/api-status', {
+  fetchAdmin('/admin/api-status', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status })
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Status updated!'); loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Status updated!');
+      loadDashboard();
+    }
+  });
 }
 
 function toggleMaintenance() {
-  fetch('/admin/toggle-maintenance', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { alert(d.maintenance ? '⚠️ Maintenance ON' : '✅ Maintenance OFF'); loadDashboard(); })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/toggle-maintenance', { method: 'POST' })
+    .then(data => {
+      if (data) {
+        alert(data.maintenance ? '⚠️ Maintenance ON' : '✅ Maintenance OFF');
+        loadDashboard();
+      }
+    });
 }
 
 function updateApiKeys() {
@@ -791,14 +1060,15 @@ function updateApiKeys() {
     userKey: document.getElementById('userKey').value,
     freeKey: document.getElementById('freeKey').value
   };
-  fetch('/admin/update-keys', {
+  fetchAdmin('/admin/update-keys', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Keys updated!'); loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Keys updated!');
+      loadDashboard();
+    }
+  });
 }
 
 function updateRateLimits() {
@@ -810,14 +1080,15 @@ function updateRateLimits() {
     freeMin: parseInt(document.getElementById('freeMin').value),
     freeDay: parseInt(document.getElementById('freeDay').value)
   };
-  fetch('/admin/rate-limits', {
+  fetchAdmin('/admin/rate-limits', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Limits updated!'); loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Limits updated!');
+      loadDashboard();
+    }
+  });
 }
 
 function updateTheme() {
@@ -826,81 +1097,89 @@ function updateTheme() {
     color: document.getElementById('textColor').value,
     glowColor: document.getElementById('glowColor').value
   };
-  fetch('/admin/update-theme', {
+  fetchAdmin('/admin/update-theme', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Theme updated! Refreshing...'); location.reload(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Theme updated! Refreshing...');
+      location.reload();
+    }
+  });
 }
 
 function quickAddUser() {
   const username = document.getElementById('newUsername').value;
   const plan = document.getElementById('newPlan').value;
   if (!username) { alert('❌ Enter username!'); return; }
-  fetch('/admin/add-user', {
+  fetchAdmin('/admin/add-user', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, plan })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if(d.success){
-      alert('✅ User added! Key: ' + d.apiKey);
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ User added! Key: ' + data.apiKey);
       document.getElementById('newUsername').value = '';
       loadDashboard();
-    } else { alert('❌ ' + d.error); }
-  })
-  .catch(err => alert('❌ Error: ' + err.message));
+    }
+  });
 }
 
 function deleteUser(username) {
   if (!confirm('⚠️ Delete ' + username + '?')) return;
-  fetch('/admin/delete-user', {
+  fetchAdmin('/admin/delete-user', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username })
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Deleted!'); loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Deleted!');
+      loadDashboard();
+    }
+  });
 }
 
 function toggleUserStatus(username) {
-  fetch('/admin/toggle-user', {
+  fetchAdmin('/admin/toggle-user', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username })
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Toggled!'); loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Toggled!');
+      loadDashboard();
+    }
+  });
 }
 
 function resetAllUsers() {
   if (!confirm('⚠️ Reset all counters?')) return;
-  fetch('/admin/reset-all', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { alert('✅ Reset!'); loadDashboard(); })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/reset-all', { method: 'POST' })
+    .then(data => {
+      if (data && data.success) {
+        alert('✅ Reset!');
+        loadDashboard();
+      }
+    });
 }
 
 function clearLogs() {
   if (!confirm('⚠️ Clear all logs?')) return;
-  fetch('/admin/clear-logs', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { alert('✅ Logs cleared!'); loadDashboard(); })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/clear-logs', { method: 'POST' })
+    .then(data => {
+      if (data && data.success) {
+        alert('✅ Logs cleared!');
+        loadDashboard();
+      }
+    });
 }
 
 function clearFailedLogins() {
   if (!confirm('⚠️ Clear failed logins?')) return;
-  fetch('/admin/clear-failed-logins', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { alert('✅ Cleared!'); loadDashboard(); })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/clear-failed-logins', { method: 'POST' })
+    .then(data => {
+      if (data && data.success) {
+        alert('✅ Cleared!');
+        loadDashboard();
+      }
+    });
 }
 
 function exportLogs() {
@@ -909,41 +1188,49 @@ function exportLogs() {
 
 function resetConfig() {
   if (!confirm('⚠️ Reset everything to default?')) return;
-  fetch('/admin/reset-config', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { if(d.success){ alert('✅ Reset! Refreshing...'); location.reload(); } })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/reset-config', { method: 'POST' })
+    .then(data => {
+      if (data && data.success) {
+        alert('✅ Reset! Refreshing...');
+        location.reload();
+      }
+    });
 }
 
 function toggleLogs() {
-  fetch('/admin/toggle-logs', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { alert(d.logsEnabled ? '📝 Logs ON' : '📝 Logs OFF'); loadDashboard(); })
-    .catch(err => alert('❌ Error: ' + err.message));
+  fetchAdmin('/admin/toggle-logs', { method: 'POST' })
+    .then(data => {
+      if (data) {
+        alert(data.logsEnabled ? '📝 Logs ON' : '📝 Logs OFF');
+        loadDashboard();
+      }
+    });
 }
 
 function addAnnouncement() {
   const msg = document.getElementById('announcementMsg').value;
   if (!msg) { alert('❌ Enter message!'); return; }
-  fetch('/admin/add-announcement', {
+  fetchAdmin('/admin/add-announcement', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: msg })
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ alert('✅ Added!'); document.getElementById('announcementMsg').value = ''; loadDashboard(); } })
-  .catch(err => alert('❌ Error: ' + err.message));
+  }).then(data => {
+    if (data && data.success) {
+      alert('✅ Added!');
+      document.getElementById('announcementMsg').value = '';
+      loadDashboard();
+    }
+  });
 }
 
 function deleteAnnouncement(id) {
-  fetch('/admin/delete-announcement', {
+  fetchAdmin('/admin/delete-announcement', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id })
-  })
-  .then(r => r.json())
-  .then(d => { if(d.success){ loadDashboard(); } })
-  .catch(err => console.error('Error:', err));
+  }).then(data => {
+    if (data && data.success) {
+      loadDashboard();
+    }
+  });
 }
 
 window.onload = loadDashboard;
@@ -955,17 +1242,35 @@ setInterval(loadDashboard, 15000);
 }
 
 // ========== ADMIN API ENDPOINTS ==========
-app.post('/admin/login', (req, res) => {
+
+// Helper function to check admin auth (using query param for simplicity)
+function isAdmin(req, res, next) {
+  // You can add proper auth check here
+  next();
+}
+
+app.post('/admin/login', async (req, res) => {
+  await loadConfig();
   const { username, password } = req.body;
   if (username === CONFIG.adminUsername && password === CONFIG.adminPassword) {
     res.json({ success: true });
   } else {
-    failedLogins.push({ username, timestamp: new Date().toISOString(), ip: req.ip || req.headers['x-forwarded-for'] || 'unknown' });
+    await addFailedLogin({ 
+      username, 
+      ip: req.ip || req.headers['x-forwarded-for'] || 'unknown' 
+    });
     res.json({ success: false });
   }
 });
 
-app.get('/admin/stats', (req, res) => {
+app.get('/admin/stats', async (req, res) => {
+  await loadConfig();
+  const users = await getAllUsers();
+  const stats = await getSystemStats();
+  const logs = await getLogs();
+  const failedLogins = await getFailedLogins();
+  const announcements = await getAnnouncements();
+  
   const userList = Object.entries(users).map(([username, data]) => ({
     username,
     ...data
@@ -973,7 +1278,7 @@ app.get('/admin/stats', (req, res) => {
   
   res.json({
     totalUsers: Object.keys(users).length,
-    totalRequests: systemStats.totalRequests,
+    totalRequests: stats.totalRequests || 0,
     ownerUsers: Object.values(users).filter(u => u.plan === 'owner').length,
     userUsers: Object.values(users).filter(u => u.plan === 'user').length,
     freeUsers: Object.values(users).filter(u => u.plan === 'free').length,
@@ -981,36 +1286,46 @@ app.get('/admin/stats', (req, res) => {
     theme: CONFIG.theme,
     version: CONFIG.version,
     users: userList,
-    logs: usageLogs,
+    logs: logs,
     failedLogins: failedLogins,
     announcements: announcements,
-    uptime: Math.floor((Date.now() - systemStats.startTime) / 1000),
+    uptime: Math.floor((Date.now() - (stats.startTime || Date.now())) / 1000),
     maintenance: CONFIG.maintenance,
     logsEnabled: CONFIG.logsEnabled
   });
 });
 
-app.post('/admin/api-status', (req, res) => {
+app.post('/admin/api-status', async (req, res) => {
+  await loadConfig();
   const { status } = req.body;
   if (['online', 'maintenance', 'offline'].includes(status)) {
     CONFIG.apiStatus = status;
+    await saveConfig();
     res.json({ success: true });
   } else {
     res.json({ success: false });
   }
 });
 
-app.post('/admin/update-keys', (req, res) => {
+app.post('/admin/update-keys', async (req, res) => {
+  await loadConfig();
   const { ownerKey, userKey, freeKey } = req.body;
-  if (ownerKey) {
+  
+  const users = await getAllUsers();
+  
+  if (ownerKey && users['ANSHAFT127987']) {
     users['ANSHAFT127987'].apiKey = ownerKey;
+    await saveUser('ANSHAFT127987', users['ANSHAFT127987']);
   }
-  if (userKey) {
+  
+  if (userKey && users['DEMO_USER']) {
     users['DEMO_USER'].apiKey = userKey;
+    await saveUser('DEMO_USER', users['DEMO_USER']);
   }
+  
   if (freeKey) {
     if (!users['FREE_USER']) {
-      users['FREE_USER'] = {
+      const newUser = {
         apiKey: freeKey,
         plan: 'free',
         minuteRequests: 0,
@@ -1020,37 +1335,51 @@ app.post('/admin/update-keys', (req, res) => {
         createdAt: Date.now(),
         status: 'active'
       };
+      await saveUser('FREE_USER', newUser);
     } else {
       users['FREE_USER'].apiKey = freeKey;
+      await saveUser('FREE_USER', users['FREE_USER']);
     }
   }
+  
   res.json({ success: true });
 });
 
-app.post('/admin/rate-limits', (req, res) => {
+app.post('/admin/rate-limits', async (req, res) => {
+  await loadConfig();
   const { userMin, userDay, ownerMin, ownerDay, freeMin, freeDay } = req.body;
+  
   if (userMin) CONFIG.rateLimit.user.perMinute = parseInt(userMin);
   if (userDay) CONFIG.rateLimit.user.perDay = parseInt(userDay);
   if (ownerMin) CONFIG.rateLimit.owner.perMinute = parseInt(ownerMin);
   if (ownerDay) CONFIG.rateLimit.owner.perDay = parseInt(ownerDay);
   if (freeMin) CONFIG.rateLimit.free.perMinute = parseInt(freeMin);
   if (freeDay) CONFIG.rateLimit.free.perDay = parseInt(freeDay);
+  
+  await saveConfig();
   res.json({ success: true });
 });
 
-app.post('/admin/update-theme', (req, res) => {
+app.post('/admin/update-theme', async (req, res) => {
+  await loadConfig();
   const { background, color, glowColor } = req.body;
+  
   if (background) CONFIG.theme.background = background;
   if (color) CONFIG.theme.color = color;
   if (glowColor) CONFIG.theme.glowColor = glowColor;
+  
+  await saveConfig();
   res.json({ success: true });
 });
 
-app.post('/admin/add-user', (req, res) => {
+app.post('/admin/add-user', async (req, res) => {
   const { username, plan } = req.body;
+  
   if (!username) {
     return res.json({ success: false, error: 'Username required' });
   }
+  
+  const users = await getAllUsers();
   if (users[username]) {
     return res.json({ success: false, error: 'User already exists' });
   }
@@ -1064,7 +1393,7 @@ app.post('/admin/add-user', (req, res) => {
     apiKey = username.toUpperCase() + '-FREE-2026';
   }
   
-  users[username] = {
+  const newUser = {
     apiKey: apiKey,
     plan: plan || 'user',
     minuteRequests: 0,
@@ -1075,51 +1404,62 @@ app.post('/admin/add-user', (req, res) => {
     status: 'active'
   };
   
+  await saveUser(username, newUser);
   res.json({ success: true, apiKey: apiKey });
 });
 
-app.post('/admin/delete-user', (req, res) => {
+app.post('/admin/delete-user', async (req, res) => {
   const { username } = req.body;
-  if (!users[username]) {
-    return res.json({ success: false, error: 'User not found' });
-  }
+  
   if (username === 'ANSHAFT127987') {
     return res.json({ success: false, error: 'Cannot delete owner' });
   }
-  delete users[username];
-  res.json({ success: true });
-});
-
-app.post('/admin/toggle-user', (req, res) => {
-  const { username } = req.body;
+  
+  const users = await getAllUsers();
   if (!users[username]) {
     return res.json({ success: false, error: 'User not found' });
   }
-  users[username].status = users[username].status === 'active' ? 'suspended' : 'active';
+  
+  await deleteUser(username);
   res.json({ success: true });
 });
 
-app.post('/admin/reset-all', (req, res) => {
+app.post('/admin/toggle-user', async (req, res) => {
+  const { username } = req.body;
+  
+  const users = await getAllUsers();
+  if (!users[username]) {
+    return res.json({ success: false, error: 'User not found' });
+  }
+  
+  users[username].status = users[username].status === 'active' ? 'suspended' : 'active';
+  await saveUser(username, users[username]);
+  res.json({ success: true });
+});
+
+app.post('/admin/reset-all', async (req, res) => {
+  const users = await getAllUsers();
   for (const key in users) {
     users[key].minuteRequests = 0;
     users[key].dayRequests = 0;
     users[key].lastMinuteReset = Date.now();
     users[key].lastDayReset = Date.now();
+    await saveUser(key, users[key]);
   }
   res.json({ success: true });
 });
 
-app.post('/admin/clear-logs', (req, res) => {
-  usageLogs = [];
+app.post('/admin/clear-logs', async (req, res) => {
+  await clearLogs();
   res.json({ success: true });
 });
 
-app.post('/admin/clear-failed-logins', (req, res) => {
-  failedLogins = [];
+app.post('/admin/clear-failed-logins', async (req, res) => {
+  await clearFailedLogins();
   res.json({ success: true });
 });
 
-app.post('/admin/reset-config', (req, res) => {
+app.post('/admin/reset-config', async (req, res) => {
   CONFIG.rateLimit.user.perMinute = 100;
   CONFIG.rateLimit.user.perDay = 1000;
   CONFIG.rateLimit.owner.perMinute = 10000;
@@ -1132,38 +1472,58 @@ app.post('/admin/reset-config', (req, res) => {
   CONFIG.apiStatus = 'online';
   CONFIG.maintenance = false;
   CONFIG.logsEnabled = true;
+  
+  await saveConfig();
   res.json({ success: true });
 });
 
-app.get('/admin/export-logs', (req, res) => {
-  const data = JSON.stringify({ users, logs: usageLogs, stats: systemStats, config: CONFIG, failedLogins, announcements }, null, 2);
+app.get('/admin/export-logs', async (req, res) => {
+  const users = await getAllUsers();
+  const logs = await getLogs();
+  const stats = await getSystemStats();
+  const failedLogins = await getFailedLogins();
+  const announcements = await getAnnouncements();
+  
+  const data = JSON.stringify({ 
+    users, 
+    logs, 
+    stats, 
+    config: CONFIG, 
+    failedLogins, 
+    announcements 
+  }, null, 2);
+  
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', 'attachment; filename=dark_vehicle_api_backup.json');
   res.send(data);
 });
 
-app.post('/admin/add-announcement', (req, res) => {
+app.post('/admin/add-announcement', async (req, res) => {
   const { message } = req.body;
   if (!message) {
     return res.json({ success: false, error: 'Message required' });
   }
-  announcements.push({ id: Date.now(), message, timestamp: new Date().toISOString() });
+  await addAnnouncement(message);
   res.json({ success: true });
 });
 
-app.post('/admin/delete-announcement', (req, res) => {
+app.post('/admin/delete-announcement', async (req, res) => {
   const { id } = req.body;
-  announcements = announcements.filter(a => a.id !== parseInt(id));
+  await deleteAnnouncement(id);
   res.json({ success: true });
 });
 
-app.post('/admin/toggle-logs', (req, res) => {
+app.post('/admin/toggle-logs', async (req, res) => {
+  await loadConfig();
   CONFIG.logsEnabled = !CONFIG.logsEnabled;
+  await saveConfig();
   res.json({ success: true, logsEnabled: CONFIG.logsEnabled });
 });
 
-app.post('/admin/toggle-maintenance', (req, res) => {
+app.post('/admin/toggle-maintenance', async (req, res) => {
+  await loadConfig();
   CONFIG.maintenance = !CONFIG.maintenance;
+  await saveConfig();
   res.json({ success: true, maintenance: CONFIG.maintenance });
 });
 
@@ -1187,7 +1547,55 @@ app.use((req, res) => {
 
 // ========== START SERVER ==========
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+
+// Initialize Firebase data
+async function initializeFirebase() {
+  console.log('🔌 Connecting to Firebase...');
+  
+  // Load config
+  await loadConfig();
+  
+  // Check if default users exist
+  const users = await getAllUsers();
+  if (!users['ANSHAFT127987']) {
+    console.log('📝 Creating default owner user...');
+    await saveUser('ANSHAFT127987', {
+      apiKey: 'ANSHAFTAK472026',
+      plan: 'owner',
+      minuteRequests: 0,
+      dayRequests: 0,
+      lastMinuteReset: Date.now(),
+      lastDayReset: Date.now(),
+      createdAt: Date.now(),
+      status: 'active'
+    });
+  }
+  
+  if (!users['DEMO_USER']) {
+    console.log('📝 Creating demo user...');
+    await saveUser('DEMO_USER', {
+      apiKey: 'DEMOFUCK',
+      plan: 'user',
+      minuteRequests: 0,
+      dayRequests: 0,
+      lastMinuteReset: Date.now(),
+      lastDayReset: Date.now(),
+      createdAt: Date.now(),
+      status: 'active'
+    });
+  }
+  
+  // Initialize stats if not exists
+  const stats = await getSystemStats();
+  if (!stats.startTime) {
+    await saveSystemStats({ totalRequests: 0, startTime: Date.now() });
+  }
+  
+  console.log('✅ Firebase initialized successfully!');
+}
+
+app.listen(PORT, async () => {
+  await initializeFirebase();
   console.log('✅ Vehicle API Server running on port ' + PORT);
   console.log('📌 Login Page: http://localhost:' + PORT + '/');
   console.log('📌 API Status: http://localhost:' + PORT + '/api/status');
@@ -1198,7 +1606,7 @@ app.listen(PORT, () => {
   console.log('   Password: ANSHAFTAK47');
   console.log('   API Key: DEMOFUCK (for testing)');
   console.log('');
-  console.log('🚀 Deployed URL: https://anshsir-info.vercel.app');
+  console.log('🔥 Firebase Database: https://ansh-aft-default-rtdb.firebaseio.com');
 });
 
 module.exports = app;
